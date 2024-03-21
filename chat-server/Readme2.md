@@ -120,7 +120,6 @@ Create the following controller class for that.
 ```java
 @RestController
 public class ChatController {
-
     @Autowired
     private KafkaTemplate<String, Message> kafkaTemplate;
 
@@ -223,7 +222,7 @@ In this class, the @KafkaListener annotated the method that will listen for the 
 and template.convertAndSend will convert the message and send that to WebSocket topic.
 
 Next, we need to configure the Websocket to send the Message to client system.
- 
+
 #### Spring WebSocket Configuration
 *WebSocketConfig.java*
 ```java

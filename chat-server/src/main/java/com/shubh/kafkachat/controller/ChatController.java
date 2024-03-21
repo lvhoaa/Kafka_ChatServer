@@ -9,13 +9,11 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
 import java.util.concurrent.ExecutionException;
 
 @RestController
 public class ChatController {
-
     @Autowired
     private KafkaTemplate<String, Message> kafkaTemplate;
 
@@ -24,6 +22,7 @@ public class ChatController {
         message.setTimestamp(LocalDateTime.now().toString());
         try {
             //Sending the message to kafka topic queue
+            // producer side -- producerConfiguration
             kafkaTemplate.send(KafkaConstants.KAFKA_TOPIC, message).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
@@ -31,8 +30,9 @@ public class ChatController {
     }
 
     //    -------------- WebSocket API ----------------
+    // broadcast the Message all the client who have subscribed to this topic.
     @MessageMapping("/sendMessage")
-    @SendTo("/topic/group")
+    @SendTo("/topic/group") // the topic inside WebSocket
     public Message broadcastGroupMessage(@Payload Message message) {
         //Sending this message to all the subscribers
         return message;
@@ -40,8 +40,7 @@ public class ChatController {
 
     @MessageMapping("/newUser")
     @SendTo("/topic/group")
-    public Message addUser(@Payload Message message,
-                           SimpMessageHeaderAccessor headerAccessor) {
+    public Message addUser(@Payload Message message, SimpMessageHeaderAccessor headerAccessor) {
         // Add user in web socket session
         headerAccessor.getSessionAttributes().put("username", message.getSender());
         return message;

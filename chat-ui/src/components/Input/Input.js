@@ -5,10 +5,6 @@ import TextField from '@material-ui/core/TextField';
 const Input = ({ onSendMessage }) => {
     const [text, setText] = useState("")
 
-    let onChange = (e) => {
-        setText(e.target.value)
-    }
-
     let onSubmit = () => {
         setText("")
         onSendMessage(text);
@@ -20,7 +16,7 @@ const Input = ({ onSendMessage }) => {
                 className="inputField"
                 label="Type your message here..."
                 placeholder="Enter your message and press ENTER"
-                onChange={e => onChange(e)}
+                onChange={(event)=>setText(event.target.value)}
                 margin="normal"
                 value={text}
                 onKeyPress={event => {

@@ -5,7 +5,6 @@ import Button from '@material-ui/core/Button';
 const LoginForm = ({ onSubmit }) => {
 
     const [username, setUsername] = useState("");
-    let handleUserNameChange = event => setUsername(event.target.value);
 
     let handleSubmit = () => {
         onSubmit(username);
@@ -16,7 +15,7 @@ const LoginForm = ({ onSubmit }) => {
             <TextField
                 label="Type your username"
                 placeholder="Username"
-                onChange={handleUserNameChange}
+                onChange={(event) => {setUsername(event.target.value)}}
                 margin="normal"
                 onKeyPress={event => {
                     if (event.key === 'Enter') {

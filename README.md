@@ -1,8 +1,5 @@
 # Chat Application
-A Realtime Chat Application built using React and Kafka as MessageBroker
-
-
-
+A Realtime Chat Server built using React and Kafka 
 
 ## Before Running the Project 
 

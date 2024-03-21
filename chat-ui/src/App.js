@@ -1,3 +1,9 @@
+// FLOW: when users type in new message, this message go through onSendMessage in the frontend 
+// -> this will send to backend via chatAPI (use Axios to POST to "/api/send" in the ChatController)
+// here, ChatController updates the timestamp and "forwards" this message to OFFICIAL KAFKA TOPIC    
+// on the CONSUMER side (MessageListener), listen to the TOPIC. Here the message gets convert to WebSocket to display to CLIENTS
+// SockJS will now onMessageReceived to display messages to CLIENTS
+// ChatController defines SockJS: when a message is sent to /topic/group, it will broadcast to all SUBSCRIBERS 
 import React, { useState } from 'react';
 import SockJsClient from 'react-stomp';
 import './App.css';
@@ -8,22 +14,21 @@ import chatAPI from './services/chatapi';
 import { randomColor } from './utils/common';
 
 
+// this endpoint is configured inside WebSocketConfig
 const SOCKET_URL = 'http://localhost:8080/ws-chat/';
 
 const App = () => {
   const [messages, setMessages] = useState([])
   const [user, setUser] = useState(null)
 
-  let onConnected = () => {
-    console.log("Connected!!")
-  }
-
   let onMessageReceived = (msg) => {
-    console.log('New Message Received!!', msg);
-    setMessages(messages.concat(msg));
+    console.log('New Message Received!! ', msg);
+    // setMessages(messages.concat(msg));
+    setMessages((messages) => [...messages, msg])
   }
 
   let onSendMessage = (msgText) => {
+    // sendMessage api stuff -- connecting with kafka here
     chatAPI.sendMessage(user.username, msgText).then(res => {
       console.log('Sent', res);
     }).catch(err => {
@@ -43,13 +48,15 @@ const App = () => {
 
   return (
     <div className="App">
-      {!!user ?
+      {user ?
         (
           <>
+          {/* // SockJS to listen to the messages, which are sent from the server-side WebSocket.  */}
+          {/* SockJS will only handle INCOMING msgs, not SEND AWAY */}
             <SockJsClient
               url={SOCKET_URL}
               topics={['/topic/group']}
-              onConnect={onConnected}
+              onConnect={console.log("Connected!!")}
               onDisconnect={console.log("Disconnected!")}
               onMessage={msg => onMessageReceived(msg)}
               debug={false}
